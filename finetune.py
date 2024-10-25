@@ -13,13 +13,20 @@ def finetune(args):
   dataset = get_dataset(args, sorted=False)
   
   model = PRETRAINED_MODEL[args.model](pretrained=True)
-  num_features = model.fc.in_features
-  model.fc = nn.Sequential(
-    nn.Linear(num_features, 1),
-    nn.Sigmoid()
-  )
   if args.model == 'resnet18':
+    num_features = model.fc.in_features
+    model.fc = nn.Sequential(
+      nn.Linear(num_features, 1),
+      nn.Sigmoid()
+    )
     model.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=2, padding=3, bias=False)
+  else:
+    num_features = model.classifier[6].in_features
+    model.classifier[6] = nn.Sequential(
+      nn.Linear(num_features, 1),
+      nn.Sigmoid()
+    )
+    
   model.to(device)
   
   for param in model.parameters():
