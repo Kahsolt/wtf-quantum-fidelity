@@ -5,10 +5,18 @@
 import pickle as pkl
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torch import Tensor
+import numpy as np
+import torchvision.transforms as transforms
 
+
+mean = [0.485, 0.456, 0.406]
+std = [0.229, 0.224, 0.225]
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class QCIFAR10Dataset(Dataset):
 
@@ -52,7 +60,7 @@ def get_fidelity_1(state_pred:Tensor, state_true:Tensor) -> float:
   return fidelity.mean().item()
 
 # 读取 dataset.pkl 并按 fid 排序
-def get_dataset(args):
+def get_dataset(args, sorted=True):
   with open(args.fp, 'rb') as file:
     test_dataset = pkl.load(file)
 
@@ -66,10 +74,19 @@ def get_dataset(args):
     im_x = img_to_01(x).permute([1, 2, 0]).numpy()
     im_z = img_to_01(z).permute([1, 2, 0]).numpy()
     dataset.append((fid0, im_x, vec_x, im_z, vec_z))
-  dataset.sort(key=(lambda e: e[0]), reverse=True)
+  if sorted:
+    dataset.sort(key=(lambda e: e[0]), reverse=True)
   fid_list = [e[0] for e in dataset]
   print('len(test_dataset):', len(dataset))
   print('  max(fid):', max(fid_list))
   print('  avg(fid):', sum(fid_list) / len(fid_list))
   print('  min(fid):', min(fid_list))
   return dataset
+
+# Transfer im_x / im_z to tensor_x / tensor_z
+def np_to_tensor(x:np.ndarray) -> Tensor:
+  x = np.transpose(x, (2, 0, 1))
+  tensor_x = torch.from_numpy(x)
+  transform = transforms.Normalize(mean=mean, std=std)
+  tensor_x = transform(tensor_x).unsqueeze(0)
+  return tensor_x
