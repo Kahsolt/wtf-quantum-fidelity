@@ -12,6 +12,13 @@
 | :-: | :-: |
 | ![high-fid-fuzzy-visual.png](./img/high-fid-fuzzy-visual.png) | ![low-fid-clear-visual.png](./img/low-fid-clear-visual.png) |
 
+ℹℹℹ **And you can even predict this fidelity value!** (img -> fid)
+
+| model | theoretical fidelity estimate error | actual fidelity estimate error |
+| :-: | :-: | :-: |
+| resnet18 | ±0.004602993408407657 | 0.0028561596719686704 |
+| vgg11    | ±0.018334930729303735 | 0.0140461407758442    |
+
 
 ### ToDo List
 
