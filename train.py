@@ -81,7 +81,7 @@ def run(args):
     dataset = [(e[1].transpose(2, 0, 1), (e[0] - fid_avg) / fid_std) for e in raw_dataset]   # [(X, Y)]
   random.shuffle(dataset)
 
-  cp = int(len(dataset) * 0.8)
+  cp = int(len(dataset) * args.split_ratio)
   trainloader = DataLoader(MyDataset(dataset[:cp]), batch_size=args.batch_size, pin_memory=True, shuffle=True,  drop_last=True)
   validloader = DataLoader(MyDataset(dataset[cp:]), batch_size=args.batch_size, pin_memory=True, shuffle=False, drop_last=False)
 
@@ -162,6 +162,7 @@ if __name__ == '__main__':
   parser.add_argument('-F', '--fp', default='./data/test_dataset.pkl', help='path to encoded test_dataset.pkl')
   parser.add_argument('-E', '--epoch',      default=30, type=int, help='epoch')
   parser.add_argument('-B', '--batch_size', default=16, type=int, help='batch size')
+  parser.add_argument('--split_ratio',      default=0.8, type=float, help='split ratio')
   args = parser.parse_args()
   
   run(args)
